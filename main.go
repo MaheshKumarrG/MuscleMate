@@ -13,31 +13,16 @@ import (
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 
-	"musclemate/config"
+	"musclemate/internal/database"
 )
 
 var jwtKey []byte
 
-func init() {
-	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		log.Println("Warning: .env file not found")
-	}
-
-	// Get JWT secret from environment
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Println("Warning: JWT_SECRET not set, using default key")
-		jwtSecret = "default_jwt_secret_key"
-	}
-	jwtKey = []byte(jwtSecret)
-}
-
 type User struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 type Claims struct {
@@ -45,25 +30,61 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-type OnboardingData struct {
-	UserID           int     `json:"user_id"`
-	Age              int     `json:"age"`
-	Gender           string  `json:"gender"`
-	Height           float64 `json:"height"`
-	Weight           float64 `json:"weight"`
-	ActivityLevel    string  `json:"activity_level"`
-	PrimaryGoal      string  `json:"primary_goal"`
-	DietType         string  `json:"diet_type"`
-	HealthConditions string  `json:"health_conditions"`
-	Allergies        string  `json:"allergies"`
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: .env file not found")
+	}
+	jwtKey = []byte(getEnv("JWT_SECRET", "default_jwt_secret_key"))
 }
 
-type MealPlan struct {
-	UserID        int `json:"user_id"`
-	DailyCalories int `json:"daily_calories"`
-	ProteinTarget int `json:"protein_target"`
-	CarbsTarget   int `json:"carbs_target"`
-	FatTarget     int `json:"fat_target"`
+func main() {
+	// Initialize database
+	if err := database.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer database.DB.Close()
+
+	// Set Gin mode
+	gin.SetMode(getEnv("GIN_MODE", gin.ReleaseMode))
+	r := gin.Default()
+
+	// CORS configuration
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:8080"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+	r.Use(cors.New(config))
+
+	// API routes
+	api := r.Group("/api")
+	{
+		// Auth routes
+		auth := api.Group("/auth")
+		{
+			auth.POST("/signup", signup)
+			auth.POST("/login", login)
+		}
+
+		// Protected routes
+		protected := api.Group("")
+		protected.Use(authMiddleware())
+		{
+			protected.GET("/user", getUser)
+			protected.POST("/onboarding", saveOnboarding)
+		}
+	}
+
+	// Serve static files
+	r.Static("/", "./")
+
+	// Start server
+	port := getEnv("PORT", "5000")
+	log.Printf("Server starting on port %s...", port)
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
 
 func generateToken(userID int) (string, error) {
@@ -74,9 +95,7 @@ func generateToken(userID int) (string, error) {
 			ExpiresAt: expirationTime.Unix(),
 		},
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(jwtKey)
 }
 
 func authMiddleware() gin.HandlerFunc {
@@ -104,41 +123,6 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
-func main() {
-	// Initialize database
-	config.InitDB()
-	defer config.DB.Close()
-
-	r := gin.Default()
-
-	// Configure CORS
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:5500", "http://127.0.0.1:5500"}
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
-	r.Use(cors.New(corsConfig))
-
-	// Public routes
-	r.POST("/api/auth/signup", signup)
-	r.POST("/api/auth/login", login)
-
-	// Protected routes
-	auth := r.Group("/api")
-	auth.Use(authMiddleware())
-	{
-		auth.GET("/user", getUser)
-		auth.POST("/onboarding", saveOnboarding)
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Printf("Server starting on port %s", port)
-	r.Run(":" + port)
-}
-
 func signup(c *gin.Context) {
 	var user User
 	if err := c.BindJSON(&user); err != nil {
@@ -146,36 +130,34 @@ func signup(c *gin.Context) {
 		return
 	}
 
-	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process password"})
 		return
 	}
 
-	// Insert user into database
-	result, err := config.DB.Exec("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+	result, err := database.DB.Exec("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
 		user.Name, user.Email, string(hashedPassword))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user. Email might already be registered."})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
 
-	userID, _ := result.LastInsertId()
+	userID, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user ID"})
+		return
+	}
+
 	token, err := generateToken(int(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-		"user": gin.H{
-			"id":    userID,
-			"name":  user.Name,
-			"email": user.Email,
-		},
-	})
+	user.Password = "" // Don't send password back
+	user.ID = int(userID)
+	c.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 }
 
 func login(c *gin.Context) {
@@ -189,7 +171,7 @@ func login(c *gin.Context) {
 	}
 
 	var user User
-	err := config.DB.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?",
+	err := database.DB.QueryRow("SELECT id, name, email, password FROM users WHERE email = ?",
 		credentials.Email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -207,26 +189,54 @@ func login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-		"user": gin.H{
-			"id":    user.ID,
-			"name":  user.Name,
-			"email": user.Email,
-		},
-	})
+	user.Password = "" // Don't send password back
+	c.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 }
 
 func getUser(c *gin.Context) {
-	userID, _ := c.Get("userID")
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
 	var user User
-	err := config.DB.QueryRow("SELECT id, name, email FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Name, &user.Email)
+	err := database.DB.QueryRow("SELECT id, name, email FROM users WHERE id = ?", userID).
+		Scan(&user.ID, &user.Name, &user.Email)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+type OnboardingData struct {
+	UserID           int     `json:"user_id"`
+	Age              int     `json:"age"`
+	Gender           string  `json:"gender"`
+	Height           float64 `json:"height"`
+	Weight           float64 `json:"weight"`
+	ActivityLevel    string  `json:"activity_level"`
+	PrimaryGoal      string  `json:"primary_goal"`
+	DietType         string  `json:"diet_type"`
+	HealthConditions string  `json:"health_conditions"`
+	Allergies        string  `json:"allergies"`
+}
+
+type MealPlan struct {
+	UserID        int `json:"user_id"`
+	DailyCalories int `json:"daily_calories"`
+	ProteinTarget int `json:"protein_target"`
+	CarbsTarget   int `json:"carbs_target"`
+	FatTarget     int `json:"fat_target"`
 }
 
 func saveOnboarding(c *gin.Context) {
@@ -240,14 +250,14 @@ func saveOnboarding(c *gin.Context) {
 	data.UserID = userID.(int)
 
 	// Begin transaction
-	tx, err := config.DB.Begin()
+	tx, err := database.DB.Begin()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
 		return
 	}
 
 	// Save onboarding data
-	result, err := tx.Exec(`
+	_, err = tx.Exec(`
 		INSERT INTO onboarding_data 
 		(user_id, age, gender, height, weight, activity_level, primary_goal, diet_type, health_conditions, allergies)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

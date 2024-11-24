@@ -7,13 +7,9 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/navbar.css">
     <link rel="stylesheet" href="styles/modal.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Three.js Canvas -->
-    <canvas id="bg"></canvas>
-
     <!-- Navigation -->
     <nav>
         <div class="logo">MuscleMate</div>
@@ -24,8 +20,8 @@
             <a href="pages/calorie-counter.html">Calorie Counter</a>
             <a href="pages/nutrition-analysis.html">Nutrition Analysis</a>
             <a href="pages/meal-prep.html">Meal Prep</a>
-            <a href="#signin" class="signin-btn">Sign In</a>
-            <a href="#signup" class="signup-btn">Sign Up</a>
+            <a href="#" onclick="showModal('signin-modal')" class="signin-btn">Sign In</a>
+            <a href="#" onclick="showModal('signup-modal')" class="signup-btn">Sign Up</a>
         </div>
     </nav>
 
@@ -36,7 +32,7 @@
             <div class="hero-content">
                 <h1>Transform Your Fitness Journey</h1>
                 <p>Your AI-powered personal fitness and nutrition assistant</p>
-                <button class="cta-button" onclick="startOnboarding()">Get Started</button>
+                <button class="cta-button" onclick="showModal('signup-modal')">Get Started</button>
             </div>
         </section>
 
@@ -81,6 +77,10 @@
                 <input type="email" id="signin-email" placeholder="Email" required>
                 <input type="password" id="signin-password" placeholder="Password" required>
                 <button type="submit">Sign In</button>
+                <p class="form-footer">
+                    Don't have an account? 
+                    <a href="#" onclick="hideModal('signin-modal'); showModal('signup-modal')">Sign Up</a>
+                </p>
             </form>
         </div>
     </div>
@@ -95,52 +95,18 @@
                 <input type="password" id="signup-password" placeholder="Password" required>
                 <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
                 <button type="submit">Sign Up</button>
+                <p class="form-footer">
+                    Already have an account? 
+                    <a href="#" onclick="hideModal('signup-modal'); showModal('signin-modal')">Sign In</a>
+                </p>
             </form>
         </div>
     </div>
+
     <!-- Scripts -->
-    <script src="js/three-background.js"></script>
     <script src="js/auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Handle Get Started flow
-        function startOnboarding() {
-            // Check if user is authenticated
-            const isAuthenticated = localStorage.getItem('isAuthenticated');
-            
-            if (isAuthenticated) {
-                // If authenticated, go directly to onboarding
-                window.location.href = 'pages/onboarding.html';
-            } else {
-                // If not authenticated, show sign up modal with onboarding redirect
-                const signupModal = document.getElementById('signup-modal');
-                signupModal.style.display = 'block';
-                
-                // Update signup form to redirect to onboarding after success
-                const signupForm = document.getElementById('signup-form');
-                signupForm.onsubmit = async (e) => {
-                    e.preventDefault();
-                    
-                    // Get form data
-                    const formData = {
-                        name: document.getElementById('signup-name').value,
-                        email: document.getElementById('signup-email').value,
-                        password: document.getElementById('signup-password').value
-                    };
-
-                    try {
-                        // Perform signup (your existing signup logic)
-                        await handleSignup(formData);
-                        
-                        // After successful signup, redirect to onboarding
-                        window.location.href = 'pages/onboarding.html';
-                    } catch (error) {
-                        console.error('Signup error:', error);
-                        alert('Error during signup. Please try again.');
-                    }
-                };
-            }
-        }
-
         // Handle modal visibility
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'block';

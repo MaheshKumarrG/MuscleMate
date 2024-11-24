@@ -2,191 +2,90 @@
 class TelegramBotService {
     constructor() {
         this.BOT_TOKEN = '7679221384:AAFr0fAemfJLXaqCOR__VecpwNM1Yi8xqGs';
-        this.CHAT_ID = '-4514267620';
+        this.CHAT_ID = '-1002442382353';  // Updated to the correct supergroup chat ID
         this.TELEGRAM_API = `https://api.telegram.org/bot${this.BOT_TOKEN}`;
     }
 
-    async initializeBot() {
+    async sendMessage(text) {
         try {
-            // Set bot commands
-            await this.setBotCommands();
-            console.log('Bot initialized successfully');
-        } catch (error) {
-            console.error('Error initializing bot:', error);
-        }
-    }
+            // Show immediate feedback
+            this.showLocalNotification('Sending order to Telegram...', 'info');
 
-    async setBotCommands() {
-        try {
-            const commands = [
-                { command: 'start', description: 'Start the bot' },
-                { command: 'help', description: 'Show help information' },
-                { command: 'order', description: 'Place a new food order' },
-                { command: 'status', description: 'Check your order status' },
-                { command: 'nutrition', description: 'View your nutrition summary' }
-            ];
-
-            const response = await fetch(`${this.TELEGRAM_API}/setMyCommands`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ commands })
-            });
-
-            const result = await response.json();
-            if (!result.ok) {
-                throw new Error('Failed to set bot commands');
-            }
-        } catch (error) {
-            console.error('Error setting bot commands:', error);
-            throw error;
-        }
-    }
-
-    async handleCommand(command, chatId) {
-        switch (command) {
-            case '/start':
-                await this.sendMessage(chatId, `
-🎉 Welcome to MuscleMate Food Ordering!
-
-I'm your personal nutrition assistant. I'll help you:
-- Order healthy meals based on your nutrition goals
-- Track your weekly nutrition progress
-- Manage your food orders
-
-Use /help to see all available commands.
-                `);
-                break;
-
-            case '/help':
-                await this.sendMessage(chatId, `
-📋 Available Commands:
-
-/start - Start the bot
-/order - Place a new food order
-/status - Check your order status
-/nutrition - View your nutrition summary
-/help - Show this help message
-
-Need assistance? Contact support at support@musclemate.com
-                `);
-                break;
-
-            case '/nutrition':
-                await this.sendNutritionSummary(chatId);
-                break;
-
-            default:
-                await this.sendMessage(chatId, "I don't recognize that command. Use /help to see available commands.");
-        }
-    }
-
-    async sendNutritionSummary(chatId) {
-        // In a real implementation, this would fetch from your backend
-        const summary = `
-📊 Your Weekly Nutrition Summary:
-
-🔸 Daily Calorie Target: 2500 kcal
-🔸 Protein: 150g
-🔸 Carbs: 300g
-🔸 Fats: 80g
-
-Progress This Week:
-✅ Protein: 90% of target
-✅ Calories: 95% of target
-⚠️ Carbs: 75% of target
-✅ Fats: 85% of target
-
-Use /order to get recommended meals based on these targets!
-        `;
-
-        await this.sendMessage(chatId, summary);
-    }
-
-    async sendOrderConfirmation(userId, orderDetails) {
-        try {
-            const message = this.formatOrderMessage(orderDetails);
-            const keyboard = {
-                inline_keyboard: [
-                    [
-                        { text: '✅ Confirm Order', callback_data: 'confirm_order' },
-                        { text: '❌ Cancel', callback_data: 'cancel_order' }
-                    ]
-                ]
-            };
-
+            // Direct API call
             const response = await fetch(`${this.TELEGRAM_API}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    chat_id: userId,
-                    text: message,
-                    parse_mode: 'HTML',
-                    reply_markup: keyboard
+                    chat_id: this.CHAT_ID,
+                    text: text,
+                    parse_mode: 'Markdown'
                 })
             });
-            return await response.json();
+
+            const data = await response.json();
+            console.log('Telegram API Response:', data);
+
+            if (data.ok) {
+                this.showLocalNotification('Order sent successfully!', 'success');
+                return data;
+            } else {
+                throw new Error(data.description || 'Failed to send message');
+            }
         } catch (error) {
-            console.error('Error sending Telegram message:', error);
+            console.error('Failed to send message:', error);
+            this.showLocalNotification('Order saved locally (Telegram unavailable)', 'error');
             throw error;
         }
     }
 
-    formatOrderMessage(orderDetails) {
-        return `
-🏋️‍♂️ <b>MuscleMate Nutrition Order</b> 🥗
+    showLocalNotification(message, type = 'success') {
+        const toast = document.createElement('div');
+        const backgroundColor = type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3';
+        
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: ${backgroundColor};
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+        toast.textContent = message;
 
-📋 <b>Weekly Nutrition Analysis Results:</b>
-${orderDetails.nutritionSummary}
-
-🛒 <b>Recommended Food Items:</b>
-${orderDetails.recommendedItems.map(item => `- ${item.name} (${item.price})`).join('\n')}
-
-💰 <b>Total Amount:</b> ${orderDetails.totalAmount}
-
-🔄 <b>Order Status:</b> Pending Confirmation
-
-Please confirm your order using the buttons below.
-`;
-    }
-
-    async handleCallbackQuery(callbackQuery) {
-        const chatId = callbackQuery.message.chat.id;
-        const data = callbackQuery.data;
-
-        switch (data) {
-            case 'confirm_order':
-                await this.processOrderConfirmation(chatId);
-                break;
-            case 'cancel_order':
-                await this.sendMessage(chatId, '❌ Order cancelled. Feel free to place a new order anytime!');
-                break;
+        if (!document.getElementById('toastAnimations')) {
+            const style = document.createElement('style');
+            style.id = 'toastAnimations';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(100%); }
+                }
+            `;
+            document.head.appendChild(style);
         }
-    }
 
-    async processOrderConfirmation(chatId) {
-        try {
-            const confirmationMessage = `
-✅ <b>Order Confirmed!</b>
+        document.body.appendChild(toast);
 
-🔢 Order ID: ${Date.now()}
-⏱ Estimated Delivery: 30-45 minutes
-
-Your order has been confirmed and will be processed through our delivery partner.
-
-Track your order status using /status
-
-Thank you for using MuscleMate! 💪
-`;
-            
-            await this.sendMessage(chatId, confirmationMessage);
-        } catch (error) {
-            console.error('Error processing order:', error);
-            throw error;
-        }
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.5s ease-in';
+            toast.addEventListener('animationend', () => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            });
+        }, 3000);
     }
 
     async sendOrder(orderDetails) {
@@ -200,69 +99,38 @@ Thank you for using MuscleMate! 💪
 💰 *Price:* ₹${orderDetails.price}
 
 📅 *Order Date:* ${new Date().toLocaleDateString()}
-⌚ *Order Time:* ${new Date().toLocaleTimeString()}
+⌚ *Order Time:* ${new Date().toLocaleTimeString()}`;
 
-_Your order has been placed successfully! The restaurant will prepare your meal according to the selected time slot._
-            `;
+            // Save order to localStorage first
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const newOrder = {
+                ...orderDetails,
+                timestamp: new Date().toISOString(),
+                status: 'pending'
+            };
+            orders.push(newOrder);
+            localStorage.setItem('orders', JSON.stringify(orders));
 
-            await this.sendMessage(null, message);
-            return true;
-        } catch (error) {
-            console.error('Failed to send order:', error);
-            throw new Error('Failed to send order notification');
-        }
-    }
+            // Try to send to Telegram
+            const result = await this.sendMessage(message);
 
-    async sendMessage(chatId = null, text, parseMode = 'Markdown') {
-        try {
-            if (!text) {
-                throw new Error('Message text is required');
-            }
+            // Update order status
+            newOrder.status = result.ok ? 'confirmed' : 'local_only';
+            localStorage.setItem('orders', JSON.stringify(orders));
 
-            const targetChatId = chatId || this.CHAT_ID;
-            const response = await fetch(`${this.TELEGRAM_API}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: targetChatId,
-                    text: text,
-                    parse_mode: parseMode
-                })
-            });
-
-            const result = await response.json();
-            
-            if (!result.ok) {
-                throw new Error(`Telegram API Error: ${result.description}`);
+            // Update UI
+            const orderButton = document.querySelector(`button[data-meal="${orderDetails.meal}"]`);
+            if (orderButton) {
+                orderButton.textContent = 'Ordered ✓';
+                orderButton.disabled = true;
+                orderButton.style.backgroundColor = '#4CAF50';
             }
 
             return result;
         } catch (error) {
-            console.error('Failed to send message:', error);
-            throw new Error(`Failed to send message: ${error.message}`);
-        }
-    }
-
-    async sendOrderNotification(orderDetails) {
-        try {
-            const message = `
-🍽 *New Order Received!*
-
-📋 *Order Details:*
-- Meal: ${orderDetails.meal}
-- Restaurant: ${orderDetails.restaurant}
-- Price: ₹${orderDetails.price}
-
-⏰ Order Time: ${new Date().toLocaleTimeString()}
-            `;
-
-            await this.sendMessage(null, message);
-            return true;
-        } catch (error) {
-            console.error('Failed to send order notification:', error);
-            throw error;
+            console.error('Order Error:', error);
+            this.showLocalNotification('Order saved locally', 'error');
+            return { ok: true, local: true };
         }
     }
 }
@@ -270,6 +138,18 @@ _Your order has been placed successfully! The restaurant will prepare your meal 
 // Export the service
 export const telegramBot = new TelegramBotService();
 
-// Test the bot connection when the module loads
-telegramBot.sendMessage(null, '🤖 MuscleMate Bot is online!')
-    .catch(error => console.error('Bot connection test failed:', error));
+// Initialize notification system
+document.addEventListener('DOMContentLoaded', () => {
+    // Create notification container if it doesn't exist
+    if (!document.getElementById('notification-container')) {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        `;
+        document.body.appendChild(container);
+    }
+});

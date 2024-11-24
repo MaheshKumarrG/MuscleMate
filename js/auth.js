@@ -1,14 +1,19 @@
-const API_URL = 'http://localhost:8080/api';
+// API configuration
+const API_URL = 'http://localhost:5000/api';
 
 // Modal handling
 function showModal(modalId) {
     const modal = document.getElementById(modalId);
-    modal.style.display = 'flex';
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
 
 function hideModal(modalId) {
     const modal = document.getElementById(modalId);
-    modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 function closeModalOnOutsideClick(event) {
@@ -21,28 +26,35 @@ function closeModalOnOutsideClick(event) {
 async function handleSignup(event) {
     event.preventDefault();
     
-    const name = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-    // Validate inputs
-    if (!name || !email || !password || !confirmPassword) {
-        alert('All fields are required');
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        alert('Passwords do not match');
-        return;
-    }
-
-    if (password.length < 6) {
-        alert('Password must be at least 6 characters long');
-        return;
-    }
-
     try {
+        const name = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        // Validate inputs
+        if (!name || !email || !password || !confirmPassword) {
+            showError('All fields are required');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            showError('Password must be at least 6 characters long');
+            return;
+        }
+
+        // Show loading state
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Signing up...';
+
+        console.log('Sending signup request to:', `${API_URL}/auth/signup`);
         const response = await fetch(`${API_URL}/auth/signup`, {
             method: 'POST',
             headers: {
@@ -56,26 +68,38 @@ async function handleSignup(event) {
         });
 
         const data = await response.json();
+        console.log('Signup response:', data);
 
-        if (response.ok) {
-            // Store token and user data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Close modal
-            hideModal('signup-modal');
-            
-            // Redirect to onboarding
-            window.location.href = '/pages/onboarding.html';
-        } else {
-            // Show specific error message from server
-            const errorMessage = data.error || 'Error during signup';
-            console.error('Signup error:', errorMessage);
-            alert(errorMessage);
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to sign up');
         }
+
+        // Store token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        // Update UI
+        updateUIForLoggedInUser(data.user);
+        hideModal('signup-modal');
+
+        // Clear form
+        event.target.reset();
+
+        // Show success message
+        showSuccess('Successfully signed up! Redirecting to onboarding...');
+
+        // Redirect to onboarding
+        setTimeout(() => {
+            window.location.href = '/pages/onboarding.html';
+        }, 1500);
     } catch (error) {
-        console.error('Network error during signup:', error);
-        alert('Network error during signup. Please check your connection and try again.');
+        console.error('Signup error:', error);
+        showError(error.message || 'Failed to sign up. Please try again.');
+    } finally {
+        // Reset button state
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Sign Up';
     }
 }
 
@@ -83,10 +107,22 @@ async function handleSignup(event) {
 async function handleLogin(event) {
     event.preventDefault();
     
-    const email = document.getElementById('signin-email').value;
-    const password = document.getElementById('signin-password').value;
-
     try {
+        const email = document.getElementById('signin-email').value.trim();
+        const password = document.getElementById('signin-password').value;
+
+        if (!email || !password) {
+            showError('Email and password are required');
+            return;
+        }
+
+        // Show loading state
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Signing in...';
+
+        console.log('Sending login request to:', `${API_URL}/auth/login`);
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: {
@@ -99,46 +135,72 @@ async function handleLogin(event) {
         });
 
         const data = await response.json();
+        console.log('Login response:', data);
 
-        if (response.ok) {
-            // Store token and user data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Close modal
-            hideModal('signin-modal');
-
-            // Check if user has completed onboarding
-            const userResponse = await fetch(`${API_URL}/user`, {
-                headers: {
-                    'Authorization': data.token
-                }
-            });
-            const userData = await userResponse.json();
-
-            if (userData.user.onboardingCompleted) {
-                window.location.href = '/'; // Go to main page
-            } else {
-                window.location.href = '/pages/onboarding.html'; // Go to onboarding
-            }
-        } else {
-            alert(data.error || 'Invalid credentials');
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to log in');
         }
+
+        // Store token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        // Update UI
+        updateUIForLoggedInUser(data.user);
+        hideModal('signin-modal');
+
+        // Clear form
+        event.target.reset();
+
+        // Show success message
+        showSuccess('Successfully logged in! Redirecting...');
+
+        // Check if user has completed onboarding
+        const userResponse = await fetch(`${API_URL}/user`, {
+            headers: {
+                'Authorization': `Bearer ${data.token}`
+            }
+        });
+
+        const userData = await userResponse.json();
+
+        // Redirect based on onboarding status
+        setTimeout(() => {
+            if (userData.onboardingCompleted) {
+                window.location.href = '/pages/dashboard.html';
+            } else {
+                window.location.href = '/pages/onboarding.html';
+            }
+        }, 1500);
     } catch (error) {
         console.error('Login error:', error);
-        alert('Error during login. Please try again.');
+        showError(error.message || 'Failed to log in. Please try again.');
+    } finally {
+        // Reset button state
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Sign In';
     }
 }
 
 // Update UI for logged-in user
 function updateUIForLoggedInUser(user) {
-    const authButtons = document.querySelector('.auth-buttons');
-    const userMenu = document.querySelector('.user-menu');
-    
-    if (authButtons && userMenu) {
-        authButtons.style.display = 'none';
-        userMenu.style.display = 'flex';
-        document.getElementById('user-name').textContent = user.name;
+    const signInBtn = document.querySelector('.signin-btn');
+    const signUpBtn = document.querySelector('.signup-btn');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (signInBtn && signUpBtn) {
+        signInBtn.style.display = 'none';
+        signUpBtn.style.display = 'none';
+
+        // Add user menu
+        const userMenu = document.createElement('div');
+        userMenu.className = 'user-menu';
+        userMenu.innerHTML = `
+            <span>Welcome, ${user.name}</span>
+            <button onclick="handleLogout()">Logout</button>
+        `;
+        navLinks.appendChild(userMenu);
     }
 }
 
@@ -146,13 +208,37 @@ function updateUIForLoggedInUser(user) {
 function handleLogout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/';
+    window.location.reload();
+}
+
+// Show error message
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-error';
+    errorDiv.textContent = message;
+    document.body.appendChild(errorDiv);
+
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000);
+}
+
+// Show success message
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success';
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
 }
 
 // Check auth status on page load
 function checkAuthStatus() {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const user = JSON.parse(localStorage.getItem('user'));
 
     if (token && user) {
         updateUIForLoggedInUser(user);
@@ -164,21 +250,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listeners to forms
     const signupForm = document.getElementById('signup-form');
     const signinForm = document.getElementById('signin-form');
-    
+
     if (signupForm) {
         signupForm.addEventListener('submit', handleSignup);
     }
-    
+
     if (signinForm) {
         signinForm.addEventListener('submit', handleLogin);
     }
 
     // Add event listeners to modals
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    };
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('click', closeModalOnOutsideClick);
+    });
 
     // Check auth status
     checkAuthStatus();

@@ -175,6 +175,19 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
+        
+        .toast.info {
+            background: #3498db;
+        }
+        
+        .order-btn i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Improve toast positioning for multiple toasts */
+        .toast + .toast {
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -351,15 +364,39 @@
                     timeSlot: timeSlot
                 };
 
-                // Send order to Telegram
-                await telegramBot.sendOrder(orderDetails);
-                
-                // Show success state
-                orderBtn.className = 'order-btn success';
-                orderBtn.innerHTML = '<i class="fas fa-check"></i> Ordered!';
-                
-                // Show success toast
-                showToast('Order placed successfully! Check Telegram for order confirmation.', 'success');
+                // Try to send order to Telegram
+                try {
+                    await telegramBot.sendOrder(orderDetails);
+                    
+                    // Show success state
+                    orderBtn.className = 'order-btn success';
+                    orderBtn.innerHTML = '<i class="fas fa-check"></i> Ordered!';
+                    
+                    // Show success toast
+                    showToast('Order placed successfully! Check Telegram for confirmation.', 'success');
+                } catch (telegramError) {
+                    console.error('Telegram error:', telegramError);
+                    
+                    // If it's a CORS error, try using the alternative method
+                    if (telegramError.message.includes('CORS') || telegramError.message.includes('Failed to fetch')) {
+                        // Store the order in localStorage
+                        const orders = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
+                        orders.push({
+                            ...orderDetails,
+                            timestamp: new Date().toISOString()
+                        });
+                        localStorage.setItem('pendingOrders', JSON.stringify(orders));
+                        
+                        // Show partial success state
+                        orderBtn.className = 'order-btn success';
+                        orderBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                        
+                        // Show info toast
+                        showToast('Order saved! It will be sent when connection is restored.', 'info');
+                    } else {
+                        throw telegramError; // Re-throw non-CORS errors
+                    }
+                }
                 
                 // Reset button after 3 seconds
                 setTimeout(() => {
@@ -374,8 +411,16 @@
                 orderBtn.className = 'order-btn error';
                 orderBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed';
                 
-                // Show error toast
-                showToast('Failed to place order. Please try again.', 'error');
+                // Show error toast with more details
+                let errorMessage = 'Failed to place order. ';
+                if (error.message.includes('CORS')) {
+                    errorMessage += 'Please enable CORS in your browser or try again later.';
+                } else if (error.message.includes('network')) {
+                    errorMessage += 'Please check your internet connection.';
+                } else {
+                    errorMessage += 'Please try again.';
+                }
+                showToast(errorMessage, 'error');
                 
                 // Reset button after 3 seconds
                 setTimeout(() => {
@@ -389,8 +434,14 @@
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
+            
+            // Choose icon based on type
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            else if (type === 'error') icon = 'exclamation-circle';
+            
             toast.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <i class="fas fa-${icon}"></i>
                 <span>${message}</span>
             `;
             document.body.appendChild(toast);
