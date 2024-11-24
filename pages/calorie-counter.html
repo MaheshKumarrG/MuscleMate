@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuscleMate - Calorie Counter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <style>
+        :root {
+            --gradient-primary: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            --gradient-secondary: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+            --color-background: #0a0a0a;
+            --color-text: #ffffff;
+            --color-text-secondary: #cccccc;
+            --color-card: rgba(255, 255, 255, 0.1);
+            --border-radius: 20px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--color-background);
+            color: var(--color-text);
+            min-height: 100vh;
+            padding: 80px 20px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            background: var(--color-card);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .form-section {
+            background: var(--color-card);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--color-text);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .image-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .image-upload:hover {
+            border-color: #4ecdc4;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .image-upload i {
+            font-size: 40px;
+            color: #4ecdc4;
+            margin-bottom: 15px;
+        }
+
+        .image-preview {
+            margin-top: 20px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            display: none;
+            border-radius: var(--border-radius);
+        }
+
+        .btn-submit {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .results {
+            display: none;
+            background: var(--color-card);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+        }
+
+        .results h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nutrition-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nutrition-item i {
+            color: #4ecdc4;
+            margin-right: 10px;
+        }
+
+        .nutrition-item span:last-child {
+            font-weight: 600;
+            color: #ff6b6b;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading i {
+            font-size: 40px;
+            color: #4ecdc4;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            display: none;
+            padding: 15px;
+            margin: 20px 0;
+            background: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+            border-left: 4px solid #ff6b6b;
+            border-radius: var(--border-radius);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">MuscleMate</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#features">Features</a>
+            <a href="../index.html#about">About</a>
+            <a href="calorie-counter.html" class="active">Calorie Counter</a>
+            <a href="nutrition-analysis.html">Nutrition Analysis</a>
+            <a href="meal-prep.html">Meal Prep</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>AI Calorie Counter</h1>
+            <p>Track your nutrition with AI-powered analysis</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <form id="calorieForm">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-utensils"></i> Dish Name
+                        </label>
+                        <input type="text" id="dishName" required placeholder="Enter the name of the dish">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-weight"></i> Portion Size
+                        </label>
+                        <input type="number" id="weight" required min="1" placeholder="Enter weight in grams">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="image-upload" onclick="document.getElementById('foodImage').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload food image</p>
+                            <input type="file" id="foodImage" accept="image/*" style="display: none">
+                        </div>
+                    </div>
+
+                    <div class="image-preview">
+                        <img id="imagePreview" alt="Food preview">
+                    </div>
+
+                    <div class="error" id="errorMessage"></div>
+
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Analyzing your food...</p>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-calculator"></i> Calculate Calories
+                    </button>
+                </form>
+            </div>
+
+            <div class="results" id="results">
+                <h2><i class="fas fa-chart-pie"></i> Nutritional Information</h2>
+                <div class="nutrition-item">
+                    <span><i class="fas fa-fire"></i> Total Calories</span>
+                    <span id="totalCalories">-</span>
+                </div>
+                <div class="nutrition-item">
+                    <span><i class="fas fa-drumstick-bite"></i> Protein</span>
+                    <span id="protein">-</span>
+                </div>
+                <div class="nutrition-item">
+                    <span><i class="fas fa-bread-slice"></i> Carbohydrates</span>
+                    <span id="carbs">-</span>
+                </div>
+                <div class="nutrition-item">
+                    <span><i class="fas fa-cheese"></i> Fat</span>
+                    <span id="fat">-</span>
+                </div>
+                <div class="nutrition-item">
+                    <span><i class="fas fa-seedling"></i> Fiber</span>
+                    <span id="fiber">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('calorieForm');
+        const imageInput = document.getElementById('foodImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Image preview
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const dishName = document.getElementById('dishName').value;
+            const weight = document.getElementById('weight').value;
+            const imageFile = imageInput.files[0];
+
+            // Show loading
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('dishName', dishName);
+                formData.append('weight', weight);
+                if (imageFile) {
+                    formData.append('image', imageFile);
+                }
+
+                const response = await fetch('http://localhost:5000/api/analyze-food-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Add animation class to results
+                results.style.opacity = '0';
+                results.style.display = 'block';
+                
+                // Update results with animation
+                setTimeout(() => {
+                    document.getElementById('totalCalories').textContent = `${Math.round(data.calories)} kcal`;
+                    document.getElementById('protein').textContent = `${Math.round(data.protein)}g`;
+                    document.getElementById('carbs').textContent = `${Math.round(data.carbs)}g`;
+                    document.getElementById('fat').textContent = `${Math.round(data.fat)}g`;
+                    document.getElementById('fiber').textContent = `${Math.round(data.fiber)}g`;
+                    
+                    results.style.opacity = '1';
+                    results.style.transition = 'opacity 0.5s ease-in-out';
+                }, 100);
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Failed to analyze food. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

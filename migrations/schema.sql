@@ -1,0 +1,40 @@
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Onboarding data table
+CREATE TABLE IF NOT EXISTS onboarding_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    age INT NOT NULL,
+    gender VARCHAR(20) NOT NULL,
+    height FLOAT NOT NULL,
+    weight FLOAT NOT NULL,
+    activity_level VARCHAR(50) NOT NULL,
+    primary_goal VARCHAR(50) NOT NULL,
+    diet_type VARCHAR(50) NOT NULL,
+    health_conditions TEXT,
+    allergies TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Meal plans table
+CREATE TABLE IF NOT EXISTS meal_plans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    daily_calories INT NOT NULL,
+    protein_target INT NOT NULL,
+    carbs_target INT NOT NULL,
+    fat_target INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

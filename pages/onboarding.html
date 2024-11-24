@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started - MuscleMate</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --text-color: #ffffff;
+            --bg-color: #1a1a1a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --border-radius: 12px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .onboarding-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .onboarding-header p {
+            color: #ccc;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .question-container {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(52, 152, 219, 0.05) 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            transition: width 0.3s ease;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+        }
+
+        .question h3 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(52, 152, 219, 0.2));
+            border-color: var(--primary-color);
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .summary-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .error-message {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger-color);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-1rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="onboarding-header">
+            <h1>Let's Get Started!</h1>
+            <p>Answer a few questions to help us create your personalized nutrition and fitness plan.</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <form id="onboardingForm">
+            <!-- Personal Information -->
+            <div class="question-container" data-section="personal">
+                <h2>Personal Information</h2>
+                <div class="question">
+                    <div class="input-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" required min="13" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" name="height" required min="100" max="250">
+                    </div>
+                    <div class="input-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" name="weight" required min="30" max="300">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fitness Goals -->
+            <div class="question-container" data-section="fitness">
+                <h2>Fitness Goals</h2>
+                <div class="question">
+                    <div class="input-group">
+                        <label>Primary Goal</label>
+                        <select name="fitnessGoal" required>
+                            <option value="weight-loss">Weight Loss</option>
+                            <option value="muscle-gain">Muscle Gain</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="endurance">Endurance</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Activity Level</label>
+                        <select name="activityLevel" required>
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Lightly Active</option>
+                            <option value="moderate">Moderately Active</option>
+                            <option value="very">Very Active</option>
+                            <option value="extreme">Extremely Active</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Weekly Exercise Hours</label>
+                        <input type="number" name="exerciseHours" min="0" max="50" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Preferences -->
+            <div class="question-container" data-section="budget">
+                <h2>Budget Preferences</h2>
+                <div class="question">
+                    <div class="input-group">
+                        <label>Daily Budget for Meals (₹)</label>
+                        <input type="number" name="dailyBudget" min="100" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Preferred Meal Service</label>
+                        <select name="mealService" required>
+                            <option value="all">All Available Options</option>
+                            <option value="restaurant">Restaurant Only</option>
+                            <option value="homemade">Home Delivery Only</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Generate My Plan</button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { analyzeFitness } from '../js/fitness-analysis.js';
+        import { telegramBot } from '../js/telegram-bot.js';
+        
+        // Show loading overlay
+        function showLoading() {
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-content">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Analyzing your profile and generating meal plan...</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            const overlay = document.querySelector('.loading-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            // Remove error after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Add loading overlay styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+            .loading-content {
+                text-align: center;
+                color: white;
+            }
+            .loading-content i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                color: var(--primary-color);
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+
+            try {
+                const formData = new FormData(e.target);
+                const userData = Object.fromEntries(formData.entries());
+                
+                // Validate required fields
+                const requiredFields = ['age', 'weight', 'height', 'gender', 'activityLevel', 'fitnessGoal'];
+                for (const field of requiredFields) {
+                    if (!userData[field]) {
+                        throw new Error(`Please fill in your ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+                    }
+                }
+
+                // Analyze fitness using HuggingFace model
+                const fitnessAnalysis = await analyzeFitness(userData);
+                
+                // Store data in localStorage
+                localStorage.setItem('userProfile', JSON.stringify(userData));
+                localStorage.setItem('fitnessAnalysis', JSON.stringify(fitnessAnalysis));
+                
+                // Try to send welcome message to Telegram
+                try {
+                    await telegramBot.sendMessage(null, `
+🎉 *New User Profile Created!*
+
+👤 *User Details:*
+- Age: ${userData.age}
+- Gender: ${userData.gender}
+- Goal: ${userData.fitnessGoal}
+- Activity Level: ${userData.activityLevel}
+
+📊 *Daily Target:*
+- Calories: ${Math.round(fitnessAnalysis.dailyCalories)} kcal
+                    `);
+                } catch (telegramError) {
+                    console.warn('Failed to send Telegram notification:', telegramError);
+                    // Continue with the flow even if Telegram message fails
+                }
+                
+                // Redirect to meal schedule page
+                window.location.href = 'meal-schedule.html';
+            } catch (error) {
+                console.error('Error processing form:', error);
+                hideLoading();
+                showError(error.message || 'An error occurred while processing your information. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

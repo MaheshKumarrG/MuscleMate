@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Analysis - MuscleMate</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/navbar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .nutrition-analysis {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .ingredients-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        .ingredients-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .ingredient-tag {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .remove-ingredient {
+            cursor: pointer;
+            color: #ff4444;
+        }
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .analyze-btn {
+            background: #2196F3;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            width: 100%;
+        }
+        .analysis-results {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .navbar {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .navbar .nav-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+        .navbar .nav-links a.active {
+            color: #ccc;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .start-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            display: block;
+            margin: 2rem auto;
+            text-align: center;
+        }
+        .start-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="../index.html">MuscleMate</a>
+        </div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="calorie-counter.html">Calorie Counter</a>
+            <a href="nutrition-analysis.html" class="active">Nutrition Analysis</a>
+            <a href="meal-prep.html">Meal Prep</a>
+        </div>
+    </nav>
+
+    <main class="nutrition-analysis">
+        <div class="container">
+            <h1>Nutrition Analysis</h1>
+            <p>Let's analyze your nutrition needs and create a personalized meal plan for you.</p>
+            <button class="start-btn" onclick="startAnalysis()">Start Analysis</button>
+        </div>
+    </main>
+
+    <script>
+        function startAnalysis() {
+            window.location.href = 'onboarding.html';
+        }
+    </script>
+</body>
+</html>
