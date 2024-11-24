@@ -9,8 +9,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 
 	"musclemate/config"
@@ -46,16 +46,16 @@ type Claims struct {
 }
 
 type OnboardingData struct {
-	UserID          int     `json:"user_id"`
-	Age            int     `json:"age"`
-	Gender         string  `json:"gender"`
-	Height         float64 `json:"height"`
-	Weight         float64 `json:"weight"`
-	ActivityLevel  string  `json:"activity_level"`
-	PrimaryGoal    string  `json:"primary_goal"`
-	DietType       string  `json:"diet_type"`
-	HealthConditions string `json:"health_conditions"`
-	Allergies      string  `json:"allergies"`
+	UserID           int     `json:"user_id"`
+	Age              int     `json:"age"`
+	Gender           string  `json:"gender"`
+	Height           float64 `json:"height"`
+	Weight           float64 `json:"weight"`
+	ActivityLevel    string  `json:"activity_level"`
+	PrimaryGoal      string  `json:"primary_goal"`
+	DietType         string  `json:"diet_type"`
+	HealthConditions string  `json:"health_conditions"`
+	Allergies        string  `json:"allergies"`
 }
 
 type MealPlan struct {
@@ -253,7 +253,7 @@ func saveOnboarding(c *gin.Context) {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		data.UserID, data.Age, data.Gender, data.Height, data.Weight,
 		data.ActivityLevel, data.PrimaryGoal, data.DietType, data.HealthConditions, data.Allergies)
-	
+
 	if err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save onboarding data"})
@@ -271,7 +271,7 @@ func saveOnboarding(c *gin.Context) {
 		(user_id, daily_calories, protein_target, carbs_target, fat_target)
 		VALUES (?, ?, ?, ?, ?)`,
 		data.UserID, mealPlan.DailyCalories, mealPlan.ProteinTarget, mealPlan.CarbsTarget, mealPlan.FatTarget)
-	
+
 	if err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save meal plan"})
@@ -285,7 +285,7 @@ func saveOnboarding(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Onboarding completed successfully",
+		"message":  "Onboarding completed successfully",
 		"mealPlan": mealPlan,
 	})
 }
@@ -309,7 +309,7 @@ func calculateDailyCalories(bmr float64, activityLevel string) int {
 		"very":      1.725,
 		"extra":     1.9,
 	}
-	
+
 	return int(bmr * multipliers[activityLevel])
 }
 
@@ -318,17 +318,17 @@ func calculateMealPlan(dailyCalories int, goal string) MealPlan {
 
 	switch goal {
 	case "muscleGain":
-		proteinPerc = 0.3  // 30%
-		fatPerc = 0.25     // 25%
-		carbsPerc = 0.45   // 45%
+		proteinPerc = 0.3 // 30%
+		fatPerc = 0.25    // 25%
+		carbsPerc = 0.45  // 45%
 	case "weightLoss":
 		proteinPerc = 0.35 // 35%
 		fatPerc = 0.3      // 30%
 		carbsPerc = 0.35   // 35%
 	default: // maintenance
-		proteinPerc = 0.3  // 30%
-		fatPerc = 0.3      // 30%
-		carbsPerc = 0.4    // 40%
+		proteinPerc = 0.3 // 30%
+		fatPerc = 0.3     // 30%
+		carbsPerc = 0.4   // 40%
 	}
 
 	return MealPlan{
