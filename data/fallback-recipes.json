@@ -1,0 +1,196 @@
+{
+  "recipes": [
+    {
+      "id": 1,
+      "title": "Chicken Biryani",
+      "type": "non-vegetarian",
+      "cuisine": "Indian",
+      "ingredients": ["chicken", "rice", "onion", "tomato", "yogurt", "biryani masala"],
+      "variants": [
+        {
+          "name": "Hyderabadi Biryani",
+          "calories": 550,
+          "protein": 28,
+          "prepTime": 45
+        },
+        {
+          "name": "Lucknowi Biryani",
+          "calories": 520,
+          "protein": 25,
+          "prepTime": 40
+        }
+      ],
+      "image": "images/recipes/biryani.jpg",
+      "readyInMinutes": 45,
+      "servings": 4
+    },
+    {
+      "id": 2,
+      "title": "Paneer Butter Masala",
+      "type": "vegetarian",
+      "cuisine": "Indian",
+      "ingredients": ["paneer", "tomato", "cream", "butter", "spices"],
+      "variants": [
+        {
+          "name": "Classic Butter Masala",
+          "calories": 420,
+          "protein": 18,
+          "prepTime": 30
+        },
+        {
+          "name": "Low-Fat Version",
+          "calories": 350,
+          "protein": 16,
+          "prepTime": 30
+        }
+      ],
+      "image": "images/recipes/paneer-butter-masala.jpg",
+      "readyInMinutes": 30,
+      "servings": 4
+    },
+    {
+      "id": 3,
+      "title": "Mixed Vegetable Curry",
+      "type": "vegan",
+      "cuisine": "Indian",
+      "ingredients": ["carrot", "peas", "potato", "cauliflower", "coconut milk"],
+      "variants": [
+        {
+          "name": "Spicy Curry",
+          "calories": 280,
+          "protein": 8,
+          "prepTime": 25
+        },
+        {
+          "name": "Mild Curry",
+          "calories": 260,
+          "protein": 8,
+          "prepTime": 25
+        }
+      ],
+      "image": "images/recipes/veg-curry.jpg",
+      "readyInMinutes": 25,
+      "servings": 4
+    },
+    {
+      "id": 4,
+      "title": "Grilled Fish",
+      "type": "non-vegetarian",
+      "cuisine": "Continental",
+      "ingredients": ["fish", "lemon", "garlic", "olive oil", "herbs"],
+      "variants": [
+        {
+          "name": "Lemon Herb Fish",
+          "calories": 320,
+          "protein": 32,
+          "prepTime": 20
+        },
+        {
+          "name": "Spicy Grilled Fish",
+          "calories": 340,
+          "protein": 32,
+          "prepTime": 20
+        }
+      ],
+      "image": "images/recipes/grilled-fish.jpg",
+      "readyInMinutes": 20,
+      "servings": 2
+    },
+    {
+      "id": 5,
+      "title": "Dal Makhani",
+      "type": "vegetarian",
+      "cuisine": "Indian",
+      "ingredients": ["black lentils", "kidney beans", "cream", "butter", "tomato"],
+      "variants": [
+        {
+          "name": "Classic Dal Makhani",
+          "calories": 380,
+          "protein": 14,
+          "prepTime": 40
+        },
+        {
+          "name": "Healthy Dal Makhani",
+          "calories": 320,
+          "protein": 14,
+          "prepTime": 40
+        }
+      ],
+      "image": "images/recipes/dal-makhani.jpg",
+      "readyInMinutes": 40,
+      "servings": 4
+    },
+    {
+      "id": 6,
+      "title": "Quinoa Bowl",
+      "type": "vegan",
+      "cuisine": "International",
+      "ingredients": ["quinoa", "chickpeas", "avocado", "spinach", "olive oil"],
+      "variants": [
+        {
+          "name": "Mediterranean Bowl",
+          "calories": 420,
+          "protein": 15,
+          "prepTime": 20
+        },
+        {
+          "name": "Mexican Bowl",
+          "calories": 450,
+          "protein": 16,
+          "prepTime": 20
+        }
+      ],
+      "image": "images/recipes/quinoa-bowl.jpg",
+      "readyInMinutes": 20,
+      "servings": 2
+    },
+    {
+      "id": 7,
+      "title": "Chicken Tikka",
+      "type": "non-vegetarian",
+      "cuisine": "Indian",
+      "ingredients": ["chicken", "yogurt", "tikka masala", "lemon", "ginger"],
+      "variants": [
+        {
+          "name": "Classic Tikka",
+          "calories": 380,
+          "protein": 32,
+          "prepTime": 35
+        },
+        {
+          "name": "Malai Tikka",
+          "calories": 420,
+          "protein": 30,
+          "prepTime": 35
+        }
+      ],
+      "image": "images/recipes/chicken-tikka.jpg",
+      "readyInMinutes": 35,
+      "servings": 4
+    },
+    {
+      "id": 8,
+      "title": "Vegetable Pulao",
+      "type": "vegetarian",
+      "cuisine": "Indian",
+      "ingredients": ["rice", "mixed vegetables", "ghee", "spices"],
+      "variants": [
+        {
+          "name": "Classic Pulao",
+          "calories": 320,
+          "protein": 8,
+          "prepTime": 30
+        },
+        {
+          "name": "Kashmiri Pulao",
+          "calories": 340,
+          "protein": 8,
+          "prepTime": 30
+        }
+      ],
+      "image": "images/recipes/veg-pulao.jpg",
+      "readyInMinutes": 30,
+      "servings": 4
+    }
+  ]
+}

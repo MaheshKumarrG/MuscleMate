@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuscleeMate - AI Meal Planner Test</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/modal.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="../index.html" class="logo">MuscleeMate</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <h1>AI Meal Planner Test</h1>
+            
+            <div class="test-form">
+                <h2>User Profile</h2>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" value="25">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" value="70">
+                </div>
+                <div class="form-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" value="170">
+                </div>
+                <div class="form-group">
+                    <label for="activityLevel">Activity Level</label>
+                    <select id="activityLevel">
+                        <option value="sedentary">Sedentary</option>
+                        <option value="light">Light Activity</option>
+                        <option value="moderate">Moderate Activity</option>
+                        <option value="very">Very Active</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fitnessGoal">Fitness Goal</label>
+                    <select id="fitnessGoal">
+                        <option value="weight_loss">Weight Loss</option>
+                        <option value="muscle_gain">Muscle Gain</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dietType">Diet Type</label>
+                    <select id="dietType">
+                        <option value="no_restriction">No Restrictions</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="allergies">Allergies (comma-separated)</label>
+                    <input type="text" id="allergies" placeholder="e.g., peanuts, milk">
+                </div>
+                <button onclick="generateMealPlan()" class="primary-button">Generate Meal Plan</button>
+            </div>
+
+            <div id="mealPlanResult" class="meal-plan-result">
+                <!-- Meal plan will be displayed here -->
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { generateAIMealPlan } from '../js/ai-meal-planner.js';
+        
+        window.generateMealPlan = async function() {
+            const userData = {
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                weight: document.getElementById('weight').value,
+                height: document.getElementById('height').value,
+                activityLevel: document.getElementById('activityLevel').value,
+                fitnessGoal: document.getElementById('fitnessGoal').value,
+                dietType: document.getElementById('dietType').value,
+                allergies: document.getElementById('allergies').value
+            };
+
+            try {
+                const resultDiv = document.getElementById('mealPlanResult');
+                resultDiv.innerHTML = '<p>Generating meal plan...</p>';
+                
+                const mealPlan = await generateAIMealPlan(userData);
+                
+                let html = '<h2>Your Personalized Meal Plan</h2>';
+                
+                // Morning
+                html += '<div class="meal-section">';
+                html += '<h3>Breakfast</h3>';
+                html += `<p>Calories: ${mealPlan.morning.calories}</p>`;
+                mealPlan.morning.suggestions.forEach(meal => {
+                    html += `<div class="meal-item">
+                        <h4>${meal.name}</h4>
+                        <p>Price: ₹${meal.price}</p>
+                        <p>Restaurant: ${meal.restaurant}</p>
+                        <p>Protein: ${meal.protein}g</p>
+                    </div>`;
+                });
+                html += '</div>';
+
+                // Afternoon
+                html += '<div class="meal-section">';
+                html += '<h3>Lunch</h3>';
+                html += `<p>Calories: ${mealPlan.afternoon.calories}</p>`;
+                mealPlan.afternoon.suggestions.forEach(meal => {
+                    html += `<div class="meal-item">
+                        <h4>${meal.name}</h4>
+                        <p>Price: ₹${meal.price}</p>
+                        <p>Restaurant: ${meal.restaurant}</p>
+                        <p>Protein: ${meal.protein}g</p>
+                    </div>`;
+                });
+                html += '</div>';
+
+                // Evening
+                html += '<div class="meal-section">';
+                html += '<h3>Evening Snack</h3>';
+                html += `<p>Calories: ${mealPlan.evening.calories}</p>`;
+                mealPlan.evening.suggestions.forEach(meal => {
+                    html += `<div class="meal-item">
+                        <h4>${meal.name}</h4>
+                        <p>Price: ₹${meal.price}</p>
+                        <p>Restaurant: ${meal.restaurant}</p>
+                        <p>Protein: ${meal.protein}g</p>
+                    </div>`;
+                });
+                html += '</div>';
+
+                // Night
+                html += '<div class="meal-section">';
+                html += '<h3>Dinner</h3>';
+                html += `<p>Calories: ${mealPlan.night.calories}</p>`;
+                mealPlan.night.suggestions.forEach(meal => {
+                    html += `<div class="meal-item">
+                        <h4>${meal.name}</h4>
+                        <p>Price: ₹${meal.price}</p>
+                        <p>Restaurant: ${meal.restaurant}</p>
+                        <p>Protein: ${meal.protein}g</p>
+                    </div>`;
+                });
+                html += '</div>';
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                document.getElementById('mealPlanResult').innerHTML = 
+                    `<p class="error">Error generating meal plan: ${error.message}</p>`;
+            }
+        };
+    </script>
+
+    <style>
+        .test-form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .meal-plan-result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .meal-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .meal-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .meal-item h4 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #ff6b6b;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .primary-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .primary-button:hover {
+            background: #45a049;
+        }
+    </style>
+</body>
+</html>

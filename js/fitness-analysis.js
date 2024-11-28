@@ -3,17 +3,43 @@ const HUGGING_FACE_API = 'https://api-inference.huggingface.co/models/';
 const MODEL_ID = 'facebook/bart-large-mnli';  // Using BART for text classification
 const API_KEY = 'YOUR_HUGGING_FACE_API_KEY';  // Replace with your API key
 
-export async function analyzeFitness(userData) {
+import { generateAIMealPlan } from './ai-meal-planner.js';
+
+export async function analyzeFitness() {
     try {
+        // Get user data from local storage
+        const storedUserData = localStorage.getItem('userProfile');
+        if (!storedUserData) {
+            return {
+                dietType: 'balanced',
+                fitnessGoal: 'maintenance',
+                dailyCalories: 2000,
+                macroSplit: {
+                    protein: 30,
+                    carbs: 40,
+                    fats: 30
+                },
+                mealTiming: {
+                    breakfast: '8:00 AM',
+                    lunch: '1:00 PM',
+                    snack: '4:30 PM',
+                    dinner: '8:00 PM'
+                }
+            };
+        }
+
+        const userData = JSON.parse(storedUserData);
+        
         // Prepare user data for analysis
         const userProfile = {
-            age: parseInt(userData.age),
-            weight: parseFloat(userData.weight),
-            height: parseFloat(userData.height),
-            gender: userData.gender,
-            activityLevel: userData.activityLevel,
-            fitnessGoal: userData.fitnessGoal,
-            exerciseHours: parseInt(userData.exerciseHours)
+            age: parseInt(userData.age) || 25,
+            weight: parseFloat(userData.weight) || 70,
+            height: parseFloat(userData.height) || 170,
+            gender: userData.gender || 'male',
+            activityLevel: userData.activityLevel || 'moderate',
+            fitnessGoal: userData.fitnessGoal || 'maintenance',
+            exerciseHours: parseInt(userData.exerciseHours) || 3,
+            dietType: userData.dietType || 'balanced'
         };
 
         // Calculate BMI
@@ -28,6 +54,8 @@ export async function analyzeFitness(userData) {
         return {
             bmi,
             dailyCalories,
+            dietType: userProfile.dietType,
+            fitnessGoal: userProfile.fitnessGoal,
             macroSplit: calculateMacroSplit(userProfile.fitnessGoal),
             mealTiming: generateMealTiming(userProfile.activityLevel),
             recommendations: analysis.recommendations,
@@ -35,7 +63,23 @@ export async function analyzeFitness(userData) {
         };
     } catch (error) {
         console.error('Error in fitness analysis:', error);
-        throw error;
+        // Return default values if there's an error
+        return {
+            dietType: 'balanced',
+            fitnessGoal: 'maintenance',
+            dailyCalories: 2000,
+            macroSplit: {
+                protein: 30,
+                carbs: 40,
+                fats: 30
+            },
+            mealTiming: {
+                breakfast: '8:00 AM',
+                lunch: '1:00 PM',
+                snack: '4:30 PM',
+                dinner: '8:00 PM'
+            }
+        };
     }
 }
 
@@ -54,24 +98,24 @@ function calculateDailyCalories(profile) {
         bmr = 447.593 + (9.247 * profile.weight) + (3.098 * profile.height) - (4.330 * profile.age);
     }
 
-    // Activity multiplier
+    // Activity multipliers
     const activityMultipliers = {
         sedentary: 1.2,
         light: 1.375,
         moderate: 1.55,
-        very: 1.725,
-        extreme: 1.9
+        active: 1.725,
+        veryActive: 1.9
     };
 
     let calories = bmr * activityMultipliers[profile.activityLevel];
 
-    // Adjust based on goal
+    // Adjust based on fitness goal
     switch (profile.fitnessGoal) {
         case 'weight-loss':
-            calories *= 0.8;  // 20% deficit
+            calories *= 0.8; // 20% deficit
             break;
         case 'muscle-gain':
-            calories *= 1.1;  // 10% surplus
+            calories *= 1.1; // 10% surplus
             break;
     }
 
@@ -81,35 +125,34 @@ function calculateDailyCalories(profile) {
 function calculateMacroSplit(goal) {
     switch (goal) {
         case 'weight-loss':
-            return { protein: 40, carbs: 25, fats: 35 };
+            return {
+                protein: 40,
+                carbs: 30,
+                fats: 30
+            };
         case 'muscle-gain':
-            return { protein: 30, carbs: 50, fats: 20 };
-        case 'maintenance':
-            return { protein: 30, carbs: 40, fats: 30 };
-        case 'endurance':
-            return { protein: 20, carbs: 60, fats: 20 };
+            return {
+                protein: 35,
+                carbs: 45,
+                fats: 20
+            };
         default:
-            return { protein: 30, carbs: 40, fats: 30 };
+            return {
+                protein: 30,
+                carbs: 40,
+                fats: 30
+            };
     }
 }
 
 function generateMealTiming(activityLevel) {
-    const baseMeals = {
-        morning: { time: '08:00', portion: 0.25 },
-        afternoon: { time: '13:00', portion: 0.35 },
-        evening: { time: '16:00', portion: 0.15 },
-        night: { time: '20:00', portion: 0.25 }
+    // Default meal timing
+    return {
+        breakfast: '8:00 AM',
+        lunch: '1:00 PM',
+        snack: '4:30 PM',
+        dinner: '8:00 PM'
     };
-
-    // Adjust timing based on activity level
-    if (activityLevel === 'very' || activityLevel === 'extreme') {
-        baseMeals.morning.time = '07:00';
-        baseMeals.afternoon.time = '12:30';
-        baseMeals.evening.time = '15:30';
-        baseMeals.night.time = '19:30';
-    }
-
-    return baseMeals;
 }
 
 async function generateFitnessAnalysis(profile) {
@@ -149,13 +192,15 @@ async function generateFitnessAnalysis(profile) {
         
         // Process and structure the recommendations
         return {
-            recommendations: processRecommendations(result[0].generated_text)
+            recommendations: processRecommendations(result[0].generated_text),
+            userProfile: profile
         };
     } catch (error) {
         console.error('Error generating fitness analysis:', error);
         // Fallback to basic recommendations if API fails
         return {
-            recommendations: generateBasicRecommendations(profile)
+            recommendations: generateBasicRecommendations(profile),
+            userProfile: profile
         };
     }
 }
@@ -200,92 +245,74 @@ function generateBasicRecommendations(profile) {
     return recommendations;
 }
 
+async function generateDayMeals(dailyCalories, day, userData) {
+    try {
+        // Use AI to generate personalized meal plan
+        const aiMealPlan = await generateAIMealPlan(userData);
+        return aiMealPlan;
+    } catch (error) {
+        console.error('Error generating AI meal plan:', error);
+        // Fallback to basic meal plan if AI fails
+        return {
+            morning: {
+                calories: Math.round(dailyCalories * 0.25),
+                suggestions: [
+                    {
+                        name: "Oats with banana and milk",
+                        price: 60,
+                        restaurant: "Healthy Bites",
+                        delivery: true
+                    }
+                ]
+            },
+            afternoon: {
+                calories: Math.round(dailyCalories * 0.35),
+                suggestions: [
+                    {
+                        name: "Dal rice with vegetables",
+                        price: 80,
+                        restaurant: "Home Kitchen",
+                        delivery: true
+                    }
+                ]
+            },
+            evening: {
+                calories: Math.round(dailyCalories * 0.15),
+                suggestions: [
+                    {
+                        name: "Mixed sprouts salad",
+                        price: 40,
+                        restaurant: "Fresh & Healthy",
+                        delivery: true
+                    }
+                ]
+            },
+            night: {
+                calories: Math.round(dailyCalories * 0.25),
+                suggestions: [
+                    {
+                        name: "Rice with dal and vegetables",
+                        price: 90,
+                        restaurant: "Home Kitchen",
+                        delivery: true
+                    }
+                ]
+            }
+        };
+    }
+}
+
 function generateWeeklyPlan(dailyCalories, analysis) {
     // Generate a weekly meal plan based on daily calories and analysis
     const weeklyPlan = {
-        monday: generateDayMeals(dailyCalories, 'monday'),
-        tuesday: generateDayMeals(dailyCalories, 'tuesday'),
-        wednesday: generateDayMeals(dailyCalories, 'wednesday'),
-        thursday: generateDayMeals(dailyCalories, 'thursday'),
-        friday: generateDayMeals(dailyCalories, 'friday'),
-        saturday: generateDayMeals(dailyCalories, 'saturday'),
-        sunday: generateDayMeals(dailyCalories, 'sunday')
+        monday: generateDayMeals(dailyCalories, 'monday', analysis.userProfile),
+        tuesday: generateDayMeals(dailyCalories, 'tuesday', analysis.userProfile),
+        wednesday: generateDayMeals(dailyCalories, 'wednesday', analysis.userProfile),
+        thursday: generateDayMeals(dailyCalories, 'thursday', analysis.userProfile),
+        friday: generateDayMeals(dailyCalories, 'friday', analysis.userProfile),
+        saturday: generateDayMeals(dailyCalories, 'saturday', analysis.userProfile),
+        sunday: generateDayMeals(dailyCalories, 'sunday', analysis.userProfile)
     };
 
     return weeklyPlan;
-}
-
-function generateDayMeals(dailyCalories, day) {
-    // This would typically connect to a food database
-    // For now, returning a structured template
-    return {
-        morning: {
-            calories: Math.round(dailyCalories * 0.25),
-            suggestions: [
-                {
-                    name: "Oatmeal with fruits",
-                    price: 150,
-                    restaurant: "Healthy Bites",
-                    delivery: true
-                },
-                {
-                    name: "Egg white sandwich",
-                    price: 180,
-                    restaurant: "Fresh & Fit",
-                    delivery: true
-                }
-            ]
-        },
-        afternoon: {
-            calories: Math.round(dailyCalories * 0.35),
-            suggestions: [
-                {
-                    name: "Grilled chicken salad",
-                    price: 250,
-                    restaurant: "Green Bowl",
-                    delivery: true
-                },
-                {
-                    name: "Quinoa bowl",
-                    price: 220,
-                    restaurant: "Nutrition Hub",
-                    delivery: true
-                }
-            ]
-        },
-        evening: {
-            calories: Math.round(dailyCalories * 0.15),
-            suggestions: [
-                {
-                    name: "Protein smoothie",
-                    price: 120,
-                    restaurant: "Juice Bar",
-                    delivery: true
-                },
-                {
-                    name: "Greek yogurt parfait",
-                    price: 150,
-                    restaurant: "Health Cafe",
-                    delivery: true
-                }
-            ]
-        },
-        night: {
-            calories: Math.round(dailyCalories * 0.25),
-            suggestions: [
-                {
-                    name: "Grilled fish with vegetables",
-                    price: 300,
-                    restaurant: "Fresh Catch",
-                    delivery: true
-                },
-                {
-                    name: "Turkey wrap",
-                    price: 220,
-                    restaurant: "Lean Meals",
-                    delivery: true
-                }
-            ]
-        }
-    };
 }

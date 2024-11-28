@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Schedule - MuscleMate</title>
+    <title>Weekly Meal Schedule - MuscleMate</title>
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/navbar.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -15,50 +15,109 @@
             margin: 0 auto;
         }
 
-        .day-card {
+        .meal-schedule h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 3rem;
+            background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .week-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .day-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .day-button:hover {
+            transform: scale(1.05);
+        }
+
+        .day-button.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .summary-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 1.5rem;
             margin-bottom: 2rem;
+            display: none;
         }
 
-        .day-header {
+        .summary-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .nutrition-summary {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            justify-content: space-around;
+            gap: 2rem;
+            flex-wrap: wrap;
         }
 
-        .day-header h2 {
-            margin: 0;
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            min-width: 150px;
+        }
+
+        .summary-item i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .meal-time {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        .summary-item strong {
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+            color: #ffffff;
         }
 
-        .meal-time h3 {
-            color: #4ecdc4;
-            margin: 0 0 1rem 0;
+        .summary-item span {
+            color: #cccccc;
         }
 
-        .meal-options {
+        .meals-container {
+            display: none;
+        }
+
+        .meals-container.active {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            animation: fadeIn 0.3s ease;
         }
 
         .meal-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
             transition: transform 0.3s ease;
         }
 
@@ -66,405 +125,322 @@
             transform: translateY(-5px);
         }
 
-        .meal-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .price {
+        .meal-time {
             color: #4ecdc4;
-            font-weight: 600;
-        }
-
-        .order-btn {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
-
-        .order-btn:hover {
-            opacity: 0.9;
-        }
-
-        .nutrition-info {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
         }
 
-        .nutrition-item {
+        .meal-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .meal-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .meal-detail {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #cccccc;
         }
 
-        .nutrition-item i {
+        .meal-detail i {
             color: #4ecdc4;
         }
 
-        .loading {
-            text-align: center;
-            padding: 2rem;
+        .order-button {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
-        .loading i {
-            color: #4ecdc4;
-            font-size: 2rem;
+        .order-button:hover {
+            transform: scale(1.05);
+        }
+
+        .order-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
             .meal-schedule {
                 padding: 1rem;
             }
-            
-            .meal-options {
-                grid-template-columns: 1fr;
+
+            .meal-schedule h1 {
+                font-size: 2rem;
+            }
+
+            .day-button {
+                padding: 0.8rem 1.5rem;
+            }
+
+            .summary-item {
+                min-width: 120px;
             }
         }
-        
-        .toast {
+
+        .notification {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transform: translateX(120%);
-            transition: transform 0.3s ease;
             z-index: 1000;
+            animation: slideIn 0.3s ease;
         }
-        
-        .toast.show {
-            transform: translateX(0);
+
+        .notification.success {
+            border-left: 4px solid #4ecdc4;
         }
-        
-        .toast.success {
-            background: #2ecc71;
+
+        .notification.error {
+            border-left: 4px solid #ff6b6b;
         }
-        
-        .toast.error {
-            background: #e74c3c;
-        }
-        
-        .toast i {
-            font-size: 1.2rem;
-        }
-        
-        .order-btn.success {
-            background: #2ecc71;
-        }
-        
-        .order-btn.error {
-            background: #e74c3c;
-        }
-        
-        .order-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .toast.info {
-            background: #3498db;
-        }
-        
-        .order-btn i {
-            margin-right: 0.5rem;
-        }
-        
-        /* Improve toast positioning for multiple toasts */
-        .toast + .toast {
-            margin-top: 1rem;
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-brand">MuscleMate</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="onboarding.html">Profile</a>
+            <a href="calorie-counter.html">Calorie Counter</a>
+            <a href="meal-schedule.html" class="active">Meal Schedule</a>
+        </div>
+    </nav>
+
     <div class="meal-schedule">
         <h1>Your Weekly Meal Schedule</h1>
-        <div id="schedule-container">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                <p>Loading your personalized meal schedule...</p>
-            </div>
+        
+        <div class="week-navigation">
+            <button class="day-button active" data-day="monday">Monday</button>
+            <button class="day-button" data-day="tuesday">Tuesday</button>
+            <button class="day-button" data-day="wednesday">Wednesday</button>
+            <button class="day-button" data-day="thursday">Thursday</button>
+            <button class="day-button" data-day="friday">Friday</button>
+            <button class="day-button" data-day="saturday">Saturday</button>
+            <button class="day-button" data-day="sunday">Sunday</button>
         </div>
+
+        <div id="schedule-container"></div>
     </div>
 
     <script type="module">
-        import { telegramBot } from '../js/telegram-bot.js';
+        import { generateAIMealPlan } from '../js/ai-meal-planner.js';
         import { analyzeFitness } from '../js/fitness-analysis.js';
+        import { telegramBot } from '../js/telegram-bot.js';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMealSchedule();
-        });
+        let weeklyMealPlan = null;
+        let currentDay = 'monday';
 
-        async function loadMealSchedule() {
+        async function initializeMealPlan() {
             try {
-                // Get user profile and fitness analysis from localStorage
-                const userProfile = JSON.parse(localStorage.getItem('userProfile'));
-                const fitnessAnalysis = JSON.parse(localStorage.getItem('fitnessAnalysis'));
-
-                if (!userProfile || !fitnessAnalysis) {
-                    window.location.href = 'onboarding.html';
-                    return;
-                }
-
-                // Generate meal schedule based on fitness analysis
-                const mealSchedule = generateWeeklyMealPlan(fitnessAnalysis);
-
-                const container = document.getElementById('schedule-container');
-                container.innerHTML = ''; // Clear loading message
-
-                // Create day cards
-                const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                days.forEach(day => {
-                    const daySchedule = mealSchedule[day];
-                    const dayCard = createDayCard(day, daySchedule);
-                    container.appendChild(dayCard);
+                const fitnessData = await analyzeFitness();
+                weeklyMealPlan = await generateAIMealPlan({
+                    dietType: fitnessData.dietType,
+                    fitnessGoal: fitnessData.fitnessGoal,
+                    calorieTarget: fitnessData.dailyCalories
                 });
-
-                // Send confirmation to Telegram
-                telegramBot.sendMessage(null, '📅 Meal schedule generated successfully!')
-                    .catch(error => console.error('Failed to send confirmation:', error));
+                showDayMeals(currentDay);
             } catch (error) {
-                console.error('Error loading meal schedule:', error);
-                showError('Failed to load meal schedule. Please try again.');
+                console.error('Error initializing meal plan:', error);
+                showError('Failed to load meal plan. Please try again later.');
             }
         }
 
-        function generateWeeklyMealPlan(fitnessAnalysis) {
-            const weeklyPlan = {};
-            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            
-            days.forEach(day => {
-                weeklyPlan[day] = {
-                    morning: generateMealOptions(fitnessAnalysis.dailyCalories * 0.25, 'morning'),
-                    afternoon: generateMealOptions(fitnessAnalysis.dailyCalories * 0.35, 'afternoon'),
-                    evening: generateMealOptions(fitnessAnalysis.dailyCalories * 0.15, 'evening'),
-                    night: generateMealOptions(fitnessAnalysis.dailyCalories * 0.25, 'night')
-                };
+        document.querySelectorAll('.day-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelector('.day-button.active').classList.remove('active');
+                button.classList.add('active');
+                currentDay = button.dataset.day;
+                showDayMeals(currentDay);
             });
+        });
 
-            return weeklyPlan;
-        }
+        function showDayMeals(day) {
+            const dayPlan = weeklyMealPlan[day];
+            const container = document.getElementById('schedule-container');
 
-        function generateMealOptions(targetCalories, timeSlot) {
-            const mealOptions = {
-                morning: [
-                    { name: "Oatmeal with fruits", calories: 350, price: 150, restaurant: "Healthy Bites" },
-                    { name: "Egg white sandwich", calories: 300, price: 180, restaurant: "Fresh & Fit" },
-                    { name: "Protein smoothie bowl", calories: 400, price: 200, restaurant: "Juice Bar" }
-                ],
-                afternoon: [
-                    { name: "Grilled chicken salad", calories: 450, price: 250, restaurant: "Green Bowl" },
-                    { name: "Quinoa bowl", calories: 400, price: 220, restaurant: "Nutrition Hub" },
-                    { name: "Fish and brown rice", calories: 500, price: 280, restaurant: "Fresh Catch" }
-                ],
-                evening: [
-                    { name: "Protein smoothie", calories: 200, price: 120, restaurant: "Juice Bar" },
-                    { name: "Greek yogurt parfait", calories: 250, price: 150, restaurant: "Health Cafe" },
-                    { name: "Mixed nuts and fruits", calories: 180, price: 100, restaurant: "Nutrition Hub" }
-                ],
-                night: [
-                    { name: "Grilled fish with vegetables", calories: 400, price: 300, restaurant: "Fresh Catch" },
-                    { name: "Turkey wrap", calories: 350, price: 220, restaurant: "Lean Meals" },
-                    { name: "Tofu stir-fry", calories: 380, price: 200, restaurant: "Green Bowl" }
-                ]
-            };
+            if (!dayPlan) {
+                container.innerHTML = '<p class="error">No meal plan available for this day.</p>';
+                return;
+            }
 
-            // Select two random meals from the appropriate time slot
-            const meals = mealOptions[timeSlot];
-            const selectedMeals = meals.sort(() => 0.5 - Math.random()).slice(0, 2);
-
-            return {
-                calories: Math.round(targetCalories),
-                suggestions: selectedMeals
-            };
-        }
-
-        function createDayCard(day, schedule) {
-            const card = document.createElement('div');
-            card.className = 'day-card';
-            
-            const dayName = day.charAt(0).toUpperCase() + day.slice(1);
-            
-            card.innerHTML = `
-                <div class="day-header">
-                    <h2>${dayName}</h2>
-                </div>
-                ${createMealTimeSection('Morning', schedule.morning)}
-                ${createMealTimeSection('Afternoon', schedule.afternoon)}
-                ${createMealTimeSection('Evening', schedule.evening)}
-                ${createMealTimeSection('Night', schedule.night)}
-            `;
-            
-            return card;
-        }
-
-        function createMealTimeSection(title, mealData) {
-            return `
-                <div class="meal-time">
-                    <h3>${title} - ${mealData.calories} calories</h3>
-                    <div class="meal-options">
-                        ${mealData.suggestions.map(meal => createMealCard(meal, title)).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function createMealCard(meal, timeSlot) {
-            return `
-                <div class="meal-card">
-                    <h4>${meal.name}</h4>
-                    <div class="nutrition-info">
-                        <span class="nutrition-item">
+            const summaryHTML = `
+                <div class="summary-card active">
+                    <div class="nutrition-summary">
+                        <div class="summary-item">
                             <i class="fas fa-fire"></i>
-                            ${Math.round(meal.calories)} cal
-                        </span>
-                        <span class="nutrition-item">
-                            <i class="fas fa-utensils"></i>
-                            ${meal.restaurant}
-                        </span>
-                    </div>
-                    <div class="meal-info">
-                        <span class="price">₹${meal.price}</span>
-                        <button class="order-btn" onclick="orderMeal('${meal.name}', '${meal.restaurant}', ${meal.price}, '${timeSlot}')">
-                            Order Now
-                        </button>
+                            <span>Total Calories</span>
+                            <strong>${dayPlan.totalCalories}</strong>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-dumbbell"></i>
+                            <span>Total Protein</span>
+                            <strong>${dayPlan.totalProtein}g</strong>
+                        </div>
+                        <div class="summary-item">
+                            <i class="fas fa-rupee-sign"></i>
+                            <span>Total Cost</span>
+                            <strong>₹${dayPlan.totalCost}</strong>
+                        </div>
                     </div>
                 </div>
             `;
+
+            const mealsHTML = `
+                <div class="meals-container active">
+                    ${Object.entries(dayPlan).filter(([key]) => key !== 'totalCalories' && key !== 'totalProtein' && key !== 'totalCost' && key !== 'recommendations').map(([mealTime, meal]) => `
+                        <div class="meal-card">
+                            <div class="meal-time">${meal.time}</div>
+                            <div class="meal-name">${meal.suggestions[0].name}</div>
+                            <div class="meal-details">
+                                <div class="meal-detail">
+                                    <i class="fas fa-fire"></i>
+                                    ${meal.suggestions[0].calories} cal
+                                </div>
+                                <div class="meal-detail">
+                                    <i class="fas fa-dumbbell"></i>
+                                    ${meal.suggestions[0].protein}g protein
+                                </div>
+                                <div class="meal-detail">
+                                    <i class="fas fa-store"></i>
+                                    ${meal.suggestions[0].restaurant}
+                                </div>
+                                <div class="meal-detail">
+                                    <i class="fas fa-rupee-sign"></i>
+                                    ${meal.suggestions[0].price}
+                                </div>
+                            </div>
+                            <button class="order-button" onclick="orderMeal('${meal.suggestions[0].name}', '${meal.suggestions[0].restaurant}', ${meal.suggestions[0].price}, '${meal.time}')">
+                                Order Now
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            container.innerHTML = summaryHTML + mealsHTML;
         }
 
-        // Global function for ordering meals
         window.orderMeal = async function(mealName, restaurant, price, timeSlot) {
             const orderBtn = event.target;
             const originalText = orderBtn.textContent;
             
             try {
-                // Disable the button and show loading state
                 orderBtn.disabled = true;
-                orderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ordering...';
-                
-                const orderDetails = {
-                    meal: mealName,
-                    restaurant: restaurant,
-                    price: price,
-                    timeSlot: timeSlot
-                };
+                orderBtn.textContent = 'Processing...';
 
-                // Try to send order to Telegram
-                try {
-                    await telegramBot.sendOrder(orderDetails);
-                    
-                    // Show success state
-                    orderBtn.className = 'order-btn success';
-                    orderBtn.innerHTML = '<i class="fas fa-check"></i> Ordered!';
-                    
-                    // Show success toast
-                    showToast('Order placed successfully! Check Telegram for confirmation.', 'success');
-                } catch (telegramError) {
-                    console.error('Telegram error:', telegramError);
-                    
-                    // If it's a CORS error, try using the alternative method
-                    if (telegramError.message.includes('CORS') || telegramError.message.includes('Failed to fetch')) {
-                        // Store the order in localStorage
-                        const orders = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
-                        orders.push({
-                            ...orderDetails,
-                            timestamp: new Date().toISOString()
-                        });
-                        localStorage.setItem('pendingOrders', JSON.stringify(orders));
-                        
-                        // Show partial success state
-                        orderBtn.className = 'order-btn success';
-                        orderBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                        
-                        // Show info toast
-                        showToast('Order saved! It will be sent when connection is restored.', 'info');
-                    } else {
-                        throw telegramError; // Re-throw non-CORS errors
-                    }
-                }
-                
-                // Reset button after 3 seconds
+                // Format message for Telegram
+                const message = `
+🍽️ *New Order Received!*
+
+📋 *Order Details:*
+- Meal: ${mealName}
+- Restaurant: ${restaurant}
+- Price: ₹${price}
+- Delivery Time: ${timeSlot}
+
+🕒 Order Time: ${new Date().toLocaleString()}
+                `;
+
+                // Send to Telegram
+                await telegramBot.sendMessage(message);
+
+                orderBtn.textContent = 'Ordered!';
+                orderBtn.style.background = '#4ecdc4';
+
+                const notification = document.createElement('div');
+                notification.className = 'notification success';
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    Order placed successfully!<br>
+                    ${mealName} from ${restaurant}<br>
+                    Delivery at ${timeSlot}
+                `;
+                document.body.appendChild(notification);
+
                 setTimeout(() => {
-                    orderBtn.disabled = false;
-                    orderBtn.className = 'order-btn';
-                    orderBtn.textContent = originalText;
-                }, 3000);
+                    notification.remove();
+                }, 5000);
+
             } catch (error) {
                 console.error('Error placing order:', error);
-                
-                // Show error state
-                orderBtn.className = 'order-btn error';
-                orderBtn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed';
-                
-                // Show error toast with more details
-                let errorMessage = 'Failed to place order. ';
-                if (error.message.includes('CORS')) {
-                    errorMessage += 'Please enable CORS in your browser or try again later.';
-                } else if (error.message.includes('network')) {
-                    errorMessage += 'Please check your internet connection.';
-                } else {
-                    errorMessage += 'Please try again.';
-                }
-                showToast(errorMessage, 'error');
-                
-                // Reset button after 3 seconds
+                orderBtn.textContent = originalText;
+                orderBtn.disabled = false;
+
+                const notification = document.createElement('div');
+                notification.className = 'notification error';
+                notification.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    Failed to place order. Please try again.
+                `;
+                document.body.appendChild(notification);
+
                 setTimeout(() => {
-                    orderBtn.disabled = false;
-                    orderBtn.className = 'order-btn';
-                    orderBtn.textContent = originalText;
-                }, 3000);
+                    notification.remove();
+                }, 5000);
             }
         };
 
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            // Choose icon based on type
-            let icon = 'info-circle';
-            if (type === 'success') icon = 'check-circle';
-            else if (type === 'error') icon = 'exclamation-circle';
-            
-            toast.innerHTML = `
-                <i class="fas fa-${icon}"></i>
-                <span>${message}</span>
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification error';
+            notification.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                ${message}
             `;
-            document.body.appendChild(toast);
-            
-            // Trigger animation
-            setTimeout(() => toast.classList.add('show'), 100);
-            
-            // Remove toast after 5 seconds
+            document.body.appendChild(notification);
+
             setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
+                notification.remove();
             }, 5000);
         }
 
-        function showError(message) {
-            const container = document.getElementById('schedule-container');
-            container.innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>${message}</p>
-                </div>
-            `;
-        }
+        initializeMealPlan();
     </script>
 </body>
 </html>

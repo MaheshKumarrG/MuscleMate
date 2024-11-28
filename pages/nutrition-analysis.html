@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/navbar.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap" rel="stylesheet">
     <style>
         .nutrition-analysis {
             padding: 2rem;
@@ -114,9 +117,30 @@
             color: #ccc;
         }
         .container {
+            text-align: center;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 216px auto;
             padding: 2rem;
+        }
+        .quote-container {
+            margin: 2rem auto;
+            max-width: 600px;
+            text-align: center;
+            color: #4ecdc4;
+            font-style: normal;
+            font-weight: 400;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .quote {
+            font-family: 'Delicious Handrawn', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        .quote-author {
+            font-size: 1rem;
+            color: #ff6b6b;
+            margin-top: 0.5rem;
         }
         .start-btn {
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
@@ -155,6 +179,10 @@
             <h1>Nutrition Analysis</h1>
             <p>Let's analyze your nutrition needs and create a personalized meal plan for you.</p>
             <button class="start-btn" onclick="startAnalysis()">Start Analysis</button>
+            <div class="quote-container">
+                <div class="quote">"Exercise is king and nutrition is queen. Together you have a kingdom."</div>
+                <div class="quote-author">- Jack LaLanne</div>
+            </div>
         </div>
     </main>
 

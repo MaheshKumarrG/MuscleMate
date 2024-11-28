@@ -50,7 +50,6 @@ async function handleSignup(event) {
 
         // Show loading state
         const submitButton = event.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = 'Signing up...';
 
@@ -58,7 +57,8 @@ async function handleSignup(event) {
         const response = await fetch(`${API_URL}/auth/signup`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 name,
@@ -67,8 +67,12 @@ async function handleSignup(event) {
             })
         });
 
-        const data = await response.json();
-        console.log('Signup response:', data);
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            throw new Error('Invalid response from server');
+        }
 
         if (!response.ok) {
             throw new Error(data.error || 'Failed to sign up');
@@ -118,7 +122,6 @@ async function handleLogin(event) {
 
         // Show loading state
         const submitButton = event.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = 'Signing in...';
 
@@ -126,7 +129,8 @@ async function handleLogin(event) {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             body: JSON.stringify({
                 email,
@@ -134,8 +138,12 @@ async function handleLogin(event) {
             })
         });
 
-        const data = await response.json();
-        console.log('Login response:', data);
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            throw new Error('Invalid response from server');
+        }
 
         if (!response.ok) {
             throw new Error(data.error || 'Failed to log in');
@@ -158,15 +166,25 @@ async function handleLogin(event) {
         // Check if user has completed onboarding
         const userResponse = await fetch(`${API_URL}/user`, {
             headers: {
-                'Authorization': `Bearer ${data.token}`
+                'Authorization': `Bearer ${data.token}`,
+                'Accept': 'application/json'
             }
         });
 
-        const userData = await userResponse.json();
+        let userData;
+        try {
+            userData = await userResponse.json();
+        } catch (e) {
+            throw new Error('Invalid response from server');
+        }
+
+        if (!userResponse.ok) {
+            throw new Error(userData.error || 'Failed to fetch user data');
+        }
 
         // Redirect based on onboarding status
         setTimeout(() => {
-            if (userData.onboardingCompleted) {
+            if (userData.user.onboardingCompleted) {
                 window.location.href = '/pages/dashboard.html';
             } else {
                 window.location.href = '/pages/onboarding.html';

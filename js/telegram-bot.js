@@ -2,7 +2,7 @@
 class TelegramBotService {
     constructor() {
         this.BOT_TOKEN = '7679221384:AAFr0fAemfJLXaqCOR__VecpwNM1Yi8xqGs';
-        this.CHAT_ID = '-1002442382353';  // Updated to the correct supergroup chat ID
+        this.CHAT_ID = '-1002442382353';
         this.TELEGRAM_API = `https://api.telegram.org/bot${this.BOT_TOKEN}`;
     }
 
@@ -10,6 +10,12 @@ class TelegramBotService {
         try {
             // Show immediate feedback
             this.showLocalNotification('Sending order to Telegram...', 'info');
+
+            console.log('Sending message to Telegram:', {
+                chat_id: this.CHAT_ID,
+                text: text,
+                parse_mode: 'Markdown'
+            });
 
             // Direct API call
             const response = await fetch(`${this.TELEGRAM_API}/sendMessage`, {
@@ -35,7 +41,7 @@ class TelegramBotService {
             }
         } catch (error) {
             console.error('Failed to send message:', error);
-            this.showLocalNotification('Order saved locally (Telegram unavailable)', 'error');
+            this.showLocalNotification(`Error: ${error.message}`, 'error');
             throw error;
         }
     }
@@ -50,41 +56,20 @@ class TelegramBotService {
             right: 20px;
             background: ${backgroundColor};
             color: white;
-            padding: 15px 25px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
-            animation: slideIn 0.5s ease-out;
-            max-width: 300px;
-            word-wrap: break-word;
+            font-family: 'Poppins', sans-serif;
+            animation: slideIn 0.3s ease-out;
         `;
+        
         toast.textContent = message;
-
-        if (!document.getElementById('toastAnimations')) {
-            const style = document.createElement('style');
-            style.id = 'toastAnimations';
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); }
-                    to { transform: translateX(0); }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); }
-                    to { transform: translateX(100%); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
         document.body.appendChild(toast);
-
+        
         setTimeout(() => {
-            toast.style.animation = 'slideOut 0.5s ease-in';
-            toast.addEventListener('animationend', () => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
-                }
-            });
+            toast.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
 
@@ -135,8 +120,22 @@ class TelegramBotService {
     }
 }
 
-// Export the service
+// Create and export a single instance
 export const telegramBot = new TelegramBotService();
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
 
 // Initialize notification system
 document.addEventListener('DOMContentLoaded', () => {

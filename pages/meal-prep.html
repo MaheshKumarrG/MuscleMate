@@ -4,784 +4,191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Preparation - MuscleMate</title>
-    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/navbar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2ecc71;
-            --secondary-color: #27ae60;
-            --accent-color: #3498db;
-            --danger-color: #e74c3c;
-            --text-color: #ffffff;
-            --bg-color: #1a1a1a;
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --border-radius: 12px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
         body {
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-            background: var(--bg-color);
-        }
-
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: #ffffff;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
+            padding: 100px 50px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+        .content-wrapper {
+            display: flex;
+            gap: 40px;
+        }
+
+        .input-section {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .header h1 {
-            margin: 0;
-            color: var(--text-color);
-            font-size: 3.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            background: linear-gradient(135deg, #2ecc71, #3498db);
+        .results-section {
+            flex: 2;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
+            text-align: center;
         }
 
-        .header p {
-            color: #ccc;
-            margin: 1rem 0 0;
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 2.5rem;
-        }
-
-        .sidebar {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(52, 152, 219, 0.05) 100%);
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            height: fit-content;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group input {
+        input[type="text"] {
             width: 100%;
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--border-radius);
+            padding: 12px;
+            margin-bottom: 20px;
             background: rgba(255, 255, 255, 0.05);
-            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn {
-            padding: 1rem 1.5rem;
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #4ecdc4, #ff6b6b);
+            color: white;
             border: none;
-            border-radius: var(--border-radius);
+            border-radius: 8px;
+            font-size: 1rem;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
+            transition: transform 0.3s ease;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            flex: 1;
-        }
-
-        .btn-primary:hover {
+        button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #c0392b);
-            color: white;
-            flex: 1;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
-        }
-
-        .ingredient-list {
+        #ingredientList {
             list-style: none;
             padding: 0;
-            margin: 0;
-            max-height: 300px;
-            overflow-y: auto;
+            margin: 20px 0;
         }
 
-        .ingredient-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .ingredient-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .ingredient-list::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        .ingredient-item {
+        #ingredientList li {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.1);
-            margin-bottom: 0.5rem;
-            border-radius: var(--border-radius);
-            transition: transform 0.2s, background 0.3s;
+            align-items: center;
         }
 
-        .ingredient-item:hover {
-            transform: translateX(5px);
-            background: rgba(255, 255, 255, 0.15);
+        .recipe {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
         }
 
-        .remove-btn {
-            background: none;
-            border: none;
-            color: var(--danger-color);
-            cursor: pointer;
-            padding: 0.3rem;
-            border-radius: 50%;
-            transition: all 0.3s;
+        .recipe:hover {
+            transform: translateY(-5px);
         }
 
-        .remove-btn:hover {
-            background: rgba(244, 67, 54, 0.2);
-            transform: rotate(90deg);
+        .recipe h3 {
+            color: #4ecdc4;
+            margin-top: 0;
         }
 
-        .recipe-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .recipe-card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            transition: transform 0.2s;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: row;
-            backdrop-filter: blur(10px);
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .recipe-image {
+        .recipe img {
             width: 200px;
             height: 200px;
-            overflow: hidden;
-        }
-
-        .recipe-image img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
+            border-radius: 10px;
+            margin: 10px 0;
         }
 
-        .recipe-content {
-            padding: 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .recipe-steps {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
         }
 
-        .recipe-content h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.2rem;
-        }
-
-        .recipe-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .recipe-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .recipe-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .tag {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-        }
-
-        .recipe-actions {
-            margin-top: auto;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            line-height: 1;
-        }
-
-        .recipe-header {
+        #loadingSpinner {
+            display: none;
             text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .recipe-header img {
-            max-width: 100%;
-            border-radius: var(--border-radius);
-            margin-bottom: 1rem;
-        }
-
-        .recipe-info {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .recipe-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .ingredients ul, .instructions ol {
-            padding-left: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .ingredients li, .instructions li {
-            margin-bottom: 0.5rem;
+            margin: 20px 0;
+            color: #4ecdc4;
         }
 
         @media (max-width: 768px) {
-            .recipe-card {
+            .content-wrapper {
                 flex-direction: column;
             }
-
-            .recipe-image {
-                width: 100%;
-                height: 200px;
-            }
-
-            .recipe-sections {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .filter-btn {
-            padding: 0.8rem 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .filter-btn.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .recipe-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            color: white;
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
             .container {
-                padding: 1rem;
+                padding: 20px;
             }
-
-            .recipe-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius);
-            color: white;
-            z-index: 1000;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .notification.success {
-            background: var(--primary-color);
-        }
-
-        .notification.error {
-            background: var(--danger-color);
-        }
-
-        .notification.warning {
-            background: #ff9800;
-        }
-
-        .notification.info {
-            background: var(--accent-color);
-        }
-
-        .error-message {
-            text-align: center;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(10px);
-        }
-
-        .error-message i {
-            font-size: 3rem;
-            color: var(--danger-color);
-            margin-bottom: 1rem;
-        }
-
-        .error-message p {
-            margin-bottom: 1rem;
-            color: #ccc;
-        }
-
-        .nutrition-section, .recommended-food {
-            margin: 1.5rem 0;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--border-radius);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .nutrition-item, .food-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--border-radius);
-            transition: transform 0.2s;
-        }
-
-        .nutrition-item:hover, .food-item:hover {
-            transform: translateX(5px);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .order-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .order-actions .btn {
-            flex: 1;
         }
     </style>
 </head>
 <body>
-    <canvas id="bg"></canvas>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">MuscleMate</div>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#features">Features</a>
+            <a href="../index.html#about">About</a>
+            <a href="calorie-counter.html">Calorie Counter</a>
+            <a href="nutrition-analysis.html">Nutrition Analysis</a>
+            <a href="meal-prep.html" class="active">Meal Prep</a>
+        </div>
+    </nav>
 
     <div class="container">
-        <div class="header">
-            <h1>Smart Meal Preparation</h1>
-            <p>Enter your ingredients and discover delicious, healthy recipes tailored just for you</p>
-        </div>
-
-        <div class="main-content">
-            <aside class="sidebar">
-                <div class="input-group">
-                    <input type="text" id="ingredientInput" placeholder="Enter an ingredient..." 
-                           onkeypress="if(event.key === 'Enter') addIngredient()">
-                </div>
-                
-                <div class="btn-group">
-                    <button onclick="addIngredient()" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add
-                    </button>
-                    <button onclick="clearIngredients()" class="btn btn-danger">
-                        <i class="fas fa-trash"></i> Clear
-                    </button>
-                </div>
-
-                <ul id="ingredientList" class="ingredient-list"></ul>
-
-                <button onclick="fetchRecipes()" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+        <h1>Smart Meal Prep</h1>
+        
+        <div class="content-wrapper">
+            <div class="input-section">
+                <input type="text" id="ingredientInput" placeholder="Enter an ingredient (e.g., chicken, tomato)">
+                <button onclick="addIngredient()">
+                    <i class="fas fa-plus"></i> Add Ingredient
+                </button>
+                <button onclick="clearIngredients()">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+                <ul id="ingredientList"></ul>
+                <button onclick="fetchRecipes()">
                     <i class="fas fa-search"></i> Find Recipes
                 </button>
-
-                <div class="order-section" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                    <h3 style="margin-bottom: 1rem; color: var(--text-color);">Need Ingredients?</h3>
-                    <button onclick="openFoodOrderModal()" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-shopping-cart"></i> Order Food
-                    </button>
-                </div>
-            </aside>
-
-            <main>
-                <div class="filters">
-                    <button class="filter-btn active" data-filter="all">All Recipes</button>
-                    <button class="filter-btn" data-filter="quick">Quick & Easy</button>
-                    <button class="filter-btn" data-filter="vegetarian">Vegetarian</button>
-                    <button class="filter-btn" data-filter="healthy">Healthy</button>
-                </div>
-
-                <div id="recipeResults" class="recipe-grid"></div>
-            </main>
-        </div>
-    </div>
-
-    <!-- Food Order Modal -->
-    <div id="foodOrderModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 600px;">
-            <h2>Weekly Nutrition Analysis & Food Order</h2>
-            <div id="nutritionAnalysis" class="nutrition-section">
-                <h3>Your Weekly Nutrition Summary</h3>
-                <div id="nutritionSummary" class="nutrition-summary">
-                    Loading your personalized nutrition analysis...
-                </div>
             </div>
-            <div id="recommendedFood" class="recommended-food">
-                <h3>Recommended Food Items</h3>
-                <div id="foodItems" class="food-items">
-                    <!-- Food items will be populated here -->
+
+            <div class="results-section">
+                <div id="loadingSpinner">
+                    <i class="fas fa-spinner fa-spin"></i> Searching for recipes...
                 </div>
-            </div>
-            <div class="order-actions">
-                <button onclick="confirmFoodOrder()" class="btn btn-primary">
-                    <i class="fas fa-check"></i> Confirm Order
-                </button>
-                <button onclick="closeFoodOrderModal()" class="btn btn-danger">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+                <div id="recipeResults"></div>
             </div>
         </div>
     </div>
 
-    <div class="loading-overlay" id="loadingSpinner">
-        <div class="spinner"></div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="../js/three-background.js"></script>
     <script src="../js/meal-prep.js"></script>
-    <script type="module">
-        import { telegramBot } from '../js/telegram-bot.js';
-
-        // Make telegramBot available globally
-        window.telegramBot = telegramBot;
-
-        // Food ordering functionality
-        window.openFoodOrderModal = async function() {
-            const modal = document.getElementById('foodOrderModal');
-            modal.style.display = 'flex';
-            
-            // Simulate loading nutrition analysis
-            await loadNutritionAnalysis();
-            
-            // Simulate loading recommended food items
-            await loadRecommendedFoodItems();
-        };
-
-        window.closeFoodOrderModal = function() {
-            const modal = document.getElementById('foodOrderModal');
-            modal.style.display = 'none';
-        };
-
-        window.confirmFoodOrder = async function() {
-            try {
-                // In a real implementation, you would get these from your backend
-                const userId = 'USER_TELEGRAM_ID'; // This should come from user's profile
-                const orderDetails = {
-                    nutritionSummary: document.getElementById('nutritionSummary').innerHTML,
-                    recommendedItems: getCurrentRecommendedItems(),
-                    totalAmount: calculateTotalAmount()
-                };
-
-                // Send order to Telegram
-                await telegramBot.sendOrderConfirmation(userId, orderDetails);
-                
-                // Show success message
-                showNotification('Order sent! Please check your Telegram for confirmation.', 'success');
-                
-                // Close modal
-                closeFoodOrderModal();
-            } catch (error) {
-                console.error('Error processing order:', error);
-                showNotification('Error processing order. Please try again.', 'error');
-            }
-        };
-
-        async function loadNutritionAnalysis() {
-            // Simulate API call to get nutrition analysis
-            const nutritionSummary = document.getElementById('nutritionSummary');
-            nutritionSummary.innerHTML = `
-                <div class="nutrition-item">
-                    <span>Required Calories:</span> 2500 kcal/day
-                </div>
-                <div class="nutrition-item">
-                    <span>Protein Target:</span> 150g/day
-                </div>
-                <div class="nutrition-item">
-                    <span>Carbs Target:</span> 300g/day
-                </div>
-                <div class="nutrition-item">
-                    <span>Fats Target:</span> 80g/day
-                </div>
-            `;
-        }
-
-        async function loadRecommendedFoodItems() {
-            // Simulate API call to get recommended food items
-            const foodItems = document.getElementById('foodItems');
-            foodItems.innerHTML = `
-                <div class="food-item">
-                    <span>High-Protein Meal Pack</span>
-                    <span>₹450</span>
-                </div>
-                <div class="food-item">
-                    <span>Protein Smoothie Pack</span>
-                    <span>₹250</span>
-                </div>
-                <div class="food-item">
-                    <span>Healthy Snack Box</span>
-                    <span>₹350</span>
-                </div>
-            `;
-        }
-
-        function getCurrentRecommendedItems() {
-            // In a real implementation, this would get the actual selected items
-            return [
-                { name: 'High-Protein Meal Pack', price: '₹450' },
-                { name: 'Protein Smoothie Pack', price: '₹250' },
-                { name: 'Healthy Snack Box', price: '₹350' }
-            ];
-        }
-
-        function calculateTotalAmount() {
-            // In a real implementation, this would calculate the actual total
-            return '₹1050';
-        }
-
-        function showNotification(message, type) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            // Add to document
-            document.body.appendChild(notification);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-    </script>
 </body>
 </html>
